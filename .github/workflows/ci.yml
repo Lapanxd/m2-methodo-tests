@@ -34,5 +34,4 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          files: |
-            test-results/**/*.json
+          files: test-results/**/*.xml

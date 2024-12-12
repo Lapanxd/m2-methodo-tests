@@ -40,7 +40,7 @@ jobs:
         id: jacoco_reporter
         uses: PavanMudigonda/jacoco-reporter@v5.0
         with:
-          coverage_results_path: build/jacocoXml/jacocoTestReport.xml
+          coverage_results_path: build/reports/jacocoXml/jacocoTestReport.xml
           coverage_report_name: Coverage
           coverage_report_title: JaCoCo
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -57,3 +57,12 @@ jobs:
           echo "| :heavy_check_mark: Number of Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }} |" >> $GITHUB_STEP_SUMMARY
           echo "| :x: Number of Lines Missed | ${{ steps.jacoco_reporter.outputs.missed_lines }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Total Number of Lines | ${{ steps.jacoco_reporter.outputs.total_lines }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run PIT Mutation Testing
+        run: ./gradlew pitest
+
+      - name: Upload PIT Mutation Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: pitest-report
+          path: build/reports/pitest/

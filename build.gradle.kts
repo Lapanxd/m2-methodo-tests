@@ -4,6 +4,8 @@ plugins {
     id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
     jacoco
+    id("java")
+    id("info.solidsoft.pitest") version "1.15.0"
 }
 
 group = "com.example"
@@ -37,8 +39,21 @@ kotlin {
     }
 }
 
+pitest {
+    junit5PluginVersion.set("1.2.1")
+    targetClasses.set(listOf("com.example.*"))
+    outputFormats.set(listOf("HTML", "XML"))
+    threads.set(4)
+    timestampedReports.set(false)
+    verbose.set(true)
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.build {
+    dependsOn("pitest")
 }
 
 tasks.test {
@@ -57,7 +72,7 @@ tasks.jacocoTestReport {
     reports {
         xml.required = true
         csv.required = false
-        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
-        xml.outputLocation = layout.buildDirectory.file("jacocoXml/jacocoTestReport.xml")
+        html.outputLocation = layout.buildDirectory.dir("reports/jacocoHtml")
+        xml.outputLocation = layout.buildDirectory.file("reports/jacocoXml/jacocoTestReport.xml")
     }
 }

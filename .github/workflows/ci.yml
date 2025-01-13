@@ -33,9 +33,6 @@ jobs:
       - name: Run Integration Tests
         run: ./gradlew testIntegration
 
-      - name: Generate JaCoCo Report (Combined)
-        run: ./gradlew jacocoTestReport
-
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()

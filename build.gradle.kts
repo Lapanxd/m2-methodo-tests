@@ -97,8 +97,20 @@ tasks.build {
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
+
 tasks.jacocoTestReport {
-    dependsOn(tasks.test)
+    dependsOn(tasks.test, tasks.named("testIntegration"))
+    executionData.from(
+        layout.buildDirectory.file("jacoco/test.exec"),
+        layout.buildDirectory.file("jacoco/integrationTest.exec")
+    )
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacocoHtml"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacocoXml/jacocoTestReport.xml"))
+    }
 }
 
 jacoco {
@@ -106,11 +118,11 @@ jacoco {
     reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
 }
 
-tasks.jacocoTestReport {
-    reports {
-        xml.required = true
-        csv.required = false
-        html.outputLocation = layout.buildDirectory.dir("reports/jacocoHtml")
-        xml.outputLocation = layout.buildDirectory.file("reports/jacocoXml/jacocoTestReport.xml")
-    }
+tasks.register<Test>("integrationTest") {
+    description = "Run integration tests with JaCoCo coverage."
+    group = "verification"
+    testClassesDirs = fileTree("src/testIntegration/kotlin")
+    classpath = sourceSets["testIntegration"].runtimeClasspath
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }

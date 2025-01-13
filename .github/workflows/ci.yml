@@ -30,11 +30,19 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      - name: Run Integration Tests
+        run: ./gradlew testIntegration
+
+      - name: Generate JaCoCo Report (Combined)
+        run: ./gradlew jacocoTestReport
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          files: build/test-results/test/**/*.xml
+          files: |
+            build/test-results/test/**/*.xml
+            build/test-results/testIntegration/**/*.xml
 
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter

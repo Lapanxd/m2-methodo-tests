@@ -1,7 +1,7 @@
 package com.example.tp1.domain.usecase
 
 import com.example.tp1.domain.model.Book
-import com.example.tp1.domain.port.BookRepository
+import com.example.tp1.domain.port.BookPort
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -12,7 +12,7 @@ import io.kotest.property.checkAll
 import io.mockk.*
 
 class BookManagerTests : FunSpec({
-    val bookRepositoryMock = mockk<BookRepository>()
+    val bookRepositoryMock = mockk<BookPort>()
     val bookManager = BookManager(bookRepositoryMock)
 
     test("should add a book to the repository") {
@@ -60,7 +60,7 @@ class BookManagerTests : FunSpec({
         verify { bookRepositoryMock.findAll() }
     }
 
-    test("all added books should be listed") {
+    test("all added books should be listed & sorted by title") {
         // Given
         val booksAdded = mutableListOf<Book>()
         val nonBlankStringArb = Arb.string(minSize = 1).filter { it.isNotBlank() }

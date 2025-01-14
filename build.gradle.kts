@@ -25,6 +25,11 @@ configurations {
     val testIntegrationImplementation: Configuration by creating {
         extendsFrom(configurations.implementation.get())
     }
+
+    val testComponentImplementation: Configuration by creating {
+        extendsFrom(configurations.testImplementation.get())
+        extendsFrom(configurations.implementation.get())
+    }
 }
 
 dependencies {
@@ -32,14 +37,24 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.liquibase:liquibase-core")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.postgresql:postgresql")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+    testImplementation("io.cucumber:cucumber-java:7.14.0")
+    testImplementation("io.cucumber:cucumber-spring:7.14.0")
+    testImplementation("io.cucumber:cucumber-junit:7.14.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.14.0")
+    testImplementation("io.rest-assured:rest-assured:5.3.2")
+    testImplementation("org.junit.platform:junit-platform-suite:1.10.0")
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
-    testImplementation("io.kotest:kotest-property:5.9.1")
-    testImplementation("io.mockk:mockk:1.13.13")
-    testImplementation("com.ninja-squad:springmockk:4.0.2")
+
+    implementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    implementation("io.kotest:kotest-runner-junit5:5.9.1")
+    implementation("io.kotest:kotest-assertions-core:5.9.1")
+    implementation("io.kotest:kotest-property:5.9.1")
+    implementation("io.mockk:mockk:1.13.13")
+    implementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }
@@ -58,6 +73,16 @@ testing {
             }
         }
 
+        val testComponent by registering(JvmTestSuite::class) {
+            sources {
+                kotlin {
+                    setSrcDirs(listOf("src/testComponent/kotlin"))
+                }
+                compileClasspath += sourceSets.main.get().output
+                runtimeClasspath += sourceSets.main.get().output
+            }
+        }
+
         dependencies {
             implementation("io.mockk:mockk:1.13.8")
             implementation("io.kotest:kotest-assertions-core:5.9.1")
@@ -67,7 +92,13 @@ testing {
                 exclude(module = "mockito-core")
             }
             implementation("io.kotest.extensions:kotest-extensions-spring:1.3.0")
+            implementation("org.testcontainers:postgresql:1.19.1")
+            implementation("org.testcontainers:testcontainers:1.19.1")
+            implementation("org.testcontainers:jdbc-test:1.12.0")
+            implementation("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
         }
+
+
     }
 }
 
@@ -123,6 +154,15 @@ tasks.register<Test>("integrationTest") {
     group = "verification"
     testClassesDirs = fileTree("src/testIntegration/kotlin")
     classpath = sourceSets["testIntegration"].runtimeClasspath
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.register<Test>("componentTest") {
+    description = "Run all tests."
+    group = "verification"
+    testClassesDirs = fileTree("src/testComponent/kotlin")
+    classpath = sourceSets["testComponent"].runtimeClasspath
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
 }

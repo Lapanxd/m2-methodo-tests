@@ -33,6 +33,9 @@ jobs:
       - name: Run Integration Tests
         run: ./gradlew testIntegration
 
+      - name: Run Component Tests
+        run: ./gradlew testComponent
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
@@ -40,6 +43,7 @@ jobs:
           files: |
             build/test-results/test/**/*.xml
             build/test-results/testIntegration/**/*.xml
+            build/test-results/testComponent/**/*.xml
 
       - name: JaCoCo Code Coverage Report
         id: jacoco_reporter

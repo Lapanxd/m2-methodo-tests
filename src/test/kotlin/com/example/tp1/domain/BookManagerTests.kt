@@ -1,7 +1,8 @@
-package com.example.tp1.domain.usecase
+package com.example.tp1.domain
 
 import com.example.tp1.domain.model.Book
 import com.example.tp1.domain.port.BookPort
+import com.example.tp1.domain.usecase.BookUseCase
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -13,14 +14,14 @@ import io.mockk.*
 
 class BookManagerTests : FunSpec({
     val bookRepositoryMock = mockk<BookPort>()
-    val bookManager = BookManager(bookRepositoryMock)
+    val bookUseCase = BookUseCase(bookRepositoryMock)
 
     test("should add a book to the repository") {
         // Given
         every { bookRepositoryMock.add(any()) } just Runs
 
         // When
-        bookManager.createBook("Mon super livre", "Moi")
+        bookUseCase.createBook("Mon super livre", "Moi")
 
         // Then
         verify { bookRepositoryMock.add(Book("Mon super livre", "Moi")) }
@@ -36,7 +37,7 @@ class BookManagerTests : FunSpec({
         every { bookRepositoryMock.findAll() } returns books
 
         // When
-        val result = bookManager.listBooks()
+        val result = bookUseCase.listBooks()
 
 
         // Then
@@ -53,7 +54,7 @@ class BookManagerTests : FunSpec({
         every { bookRepositoryMock.findAll() } returns emptyList()
 
         // When
-        val result = bookManager.listBooks()
+        val result = bookUseCase.listBooks()
 
         // Then
         result shouldBe emptyList()
@@ -70,12 +71,12 @@ class BookManagerTests : FunSpec({
         checkAll(nonBlankStringArb, nonBlankStringArb) { title, author ->
             // When
             val book = Book(title, author)
-            bookManager.createBook(title, author)
+            bookUseCase.createBook(title, author)
 
             // Then
             verify { bookRepositoryMock.add(book) }
             val sortedBooks = booksAdded.sortedBy { it.title }
-            bookManager.listBooks() shouldBe sortedBooks
+            bookUseCase.listBooks() shouldBe sortedBooks
         }
     }
 
@@ -86,9 +87,9 @@ class BookManagerTests : FunSpec({
         val emptyString = ""
 
         // When & Then
-        shouldThrow<IllegalArgumentException> { bookManager.createBook(emptyString, validAuthor) }
+        shouldThrow<IllegalArgumentException> { bookUseCase.createBook(emptyString, validAuthor) }
             .message shouldBe "Title cannot be blank"
-        shouldThrow<IllegalArgumentException> { bookManager.createBook(validTitle, emptyString) }
+        shouldThrow<IllegalArgumentException> { bookUseCase.createBook(validTitle, emptyString) }
             .message shouldBe "Author cannot be blank"
     }
 })

@@ -1,10 +1,12 @@
+package com.example.tp1.infrastructure.driven.adapter
+
 import com.example.tp1.domain.model.Book
 import com.example.tp1.domain.port.BookPort
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 
-@Component
+@Service
 class BookDao(private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate) : BookPort {
     override fun findAll(): List<Book> {
         return namedParameterJdbcTemplate

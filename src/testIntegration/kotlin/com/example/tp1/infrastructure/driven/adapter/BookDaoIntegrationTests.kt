@@ -1,5 +1,6 @@
 import com.example.tp1.Tp1Application
 import com.example.tp1.domain.model.Book
+import com.example.tp1.infrastructure.driven.adapter.BookDao
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension

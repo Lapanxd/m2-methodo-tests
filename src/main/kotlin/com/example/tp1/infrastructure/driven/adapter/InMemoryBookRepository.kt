@@ -1,4 +1,4 @@
-package com.example.tp1.infrastructure.adapter
+package com.example.tp1.infrastructure.driven.adapter
 
 import com.example.tp1.domain.model.Book
 import com.example.tp1.domain.port.BookPort

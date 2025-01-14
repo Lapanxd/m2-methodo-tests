@@ -1,5 +1,6 @@
-package com.example.tp1.domain.model
+package com.example.tp1.domain
 
+import com.example.tp1.domain.model.Book
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

@@ -44,4 +44,28 @@ class BookTests : FunSpec({
         // Then
         exception.message shouldBe "Author cannot be blank"
     }
+
+    test("shoud create a book not reserved") {
+        // Given
+        val title = "Title"
+        val author = "Author"
+
+        // When
+        val book = Book(title, author)
+
+        book.isReserved shouldBe false
+    }
+
+    test("shoud create a book reserved") {
+        // Given
+        val title = "Title"
+        val author = "Author"
+        val reserved = true
+
+        // When
+        val book = Book(title, author, reserved)
+
+        // Then
+        book.isReserved shouldBe true
+    }
 })

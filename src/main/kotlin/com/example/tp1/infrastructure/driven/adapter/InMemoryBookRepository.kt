@@ -15,4 +15,8 @@ class InMemoryBookRepository : BookPort {
     override fun findAll(): List<Book> {
         return books
     }
+
+    override fun reserveBook(book: Book) {
+        TODO("Not yet implemented")
+    }
 }

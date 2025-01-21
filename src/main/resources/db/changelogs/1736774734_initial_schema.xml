@@ -16,6 +16,9 @@
             <column name="author" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="is_reserved" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 

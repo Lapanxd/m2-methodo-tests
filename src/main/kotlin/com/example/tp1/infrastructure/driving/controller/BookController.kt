@@ -13,7 +13,7 @@ class BookController(private val bookUseCase: BookUseCase) {
     @GetMapping
     fun getBooks(): List<BookDto> {
         return try {
-            bookUseCase.listBooks().map { book -> BookDto(book.title, book.author) }
+            bookUseCase.listBooks().map { book -> BookDto(book.title, book.author, book.isReserved) }
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to fetch books", e)
         }
@@ -29,6 +29,18 @@ class BookController(private val bookUseCase: BookUseCase) {
             throw ResponseStatusException(HttpStatus.CONFLICT, "Book already exists", e)
         } catch (e: Exception) {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to create book", e)
+        }
+    }
+
+    @PatchMapping("/{title}/reserve")
+    @ResponseStatus(HttpStatus.OK)
+    fun reserveBook(@PathVariable title: String) {
+        try {
+            bookUseCase.reserveBook(title)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Book not found or already reserved", e)
+        } catch (e: Exception) {
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unable to reserve book", e)
         }
     }
 }

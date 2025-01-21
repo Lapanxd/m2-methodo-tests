@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.patch
 import org.springframework.test.web.servlet.post
 
 @WebMvcTest(BookController::class)
@@ -49,7 +50,7 @@ class BookControllerIntegrationTest(
     }
 
     test("POST /books should create a new book (201)") {
-        val bookDto = BookDto("New Book", "New Author")
+        val bookDto = BookDto("New Book", "New Author", false)
         every { bookUseCase.createBook(bookDto.title, bookDto.author) } returns Unit
 
         mockMvc.post("/books") {
@@ -94,7 +95,7 @@ class BookControllerIntegrationTest(
     }
 
     test("POST /books should return 409 if book already exists") {
-        val bookDto = BookDto("Existing Book", "Author")
+        val bookDto = BookDto("Existing Book", "Author", false)
         every {
             bookUseCase.createBook(
                 bookDto.title,
@@ -112,4 +113,38 @@ class BookControllerIntegrationTest(
 
         verify(exactly = 1) { bookUseCase.createBook("Existing Book", "Author") }
     }
+
+    test("PATCH /books/{title}/reserve should reserve a book (200)") {
+        val title = "1984"
+        val author = "George Orwell"
+
+        every { bookUseCase.reserveBook(title) } returns Unit
+
+        mockMvc.patch("/books/$title/reserve") {
+            param("author", author)
+        }
+            .andExpect {
+                status { isOk() }
+            }
+
+        verify(exactly = 1) { bookUseCase.reserveBook(title) }
+    }
+
+
+    test("PATCH /books/{title}/reserve should return 500 if an unexpected error occurs") {
+        val title = "1984"
+        val author = "George Orwell"
+
+        every { bookUseCase.reserveBook(title) } throws RuntimeException("Unexpected error")
+
+        mockMvc.patch("/books/$title/reserve") {
+            param("author", author)
+        }
+            .andExpect {
+                status { isInternalServerError() }
+            }
+
+        verify(exactly = 1) { bookUseCase.reserveBook(title) }
+    }
+
 })

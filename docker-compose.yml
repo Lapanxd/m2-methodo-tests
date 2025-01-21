@@ -3,7 +3,7 @@ version: '3.9'
 services:
   postgres:
     image: postgres:15
-    container_name: testinte.db
+    container_name: testintegration.db
     restart: always
     environment:
       POSTGRES_USER: postgres

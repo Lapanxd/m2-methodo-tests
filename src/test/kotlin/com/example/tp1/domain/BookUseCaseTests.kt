@@ -12,9 +12,13 @@ import io.kotest.property.arbitrary.string
 import io.kotest.property.checkAll
 import io.mockk.*
 
-class BookManagerTests : FunSpec({
+class BookUseCaseTests : FunSpec({
     val bookRepositoryMock = mockk<BookPort>()
     val bookUseCase = BookUseCase(bookRepositoryMock)
+
+    beforeTest {
+        clearMocks(bookRepositoryMock)
+    }
 
     test("should add a book to the repository") {
         // Given
@@ -91,5 +95,46 @@ class BookManagerTests : FunSpec({
             .message shouldBe "Title cannot be blank"
         shouldThrow<IllegalArgumentException> { bookUseCase.createBook(validTitle, emptyString) }
             .message shouldBe "Author cannot be blank"
+    }
+
+    test("should reserve a book if it is not already reserved") {
+        // Given
+        val book = Book("Kotlin Basics", "John Doe", isReserved = false)
+        every { bookRepositoryMock.findAll() } returns listOf(book)
+        every { bookRepositoryMock.reserveBook(book) } just Runs
+
+        // When
+        bookUseCase.reserveBook("Kotlin Basics")
+
+        // Then
+        verify { bookRepositoryMock.reserveBook(book) }
+    }
+
+    test("should throw an error if the book is already reserved") {
+        // Given
+        val reservedBook = Book("Kotlin Advanced", "Jane Doe", isReserved = true)
+        val otherBook = Book("Kotlin Basics", "John Doe", isReserved = false)
+        every { bookRepositoryMock.findAll() } returns listOf(reservedBook, otherBook)
+
+        // When & Then
+        val exception = shouldThrow<IllegalStateException> {
+            bookUseCase.reserveBook("Kotlin Advanced")
+        }
+        exception.message shouldBe "Book with title 'Kotlin Advanced' is already reserved"
+
+        // Verify that reserveBook is not called
+        verify(exactly = 0) { bookRepositoryMock.reserveBook(any()) }
+    }
+
+    test("should throw an error if the book does not exist") {
+        // Given
+        every { bookRepositoryMock.findAll() } returns emptyList()
+
+        // When & Then
+        val exception = shouldThrow<IllegalArgumentException> {
+            bookUseCase.reserveBook("Nonexistent Book")
+        }
+        exception.message shouldBe "Book with title 'Nonexistent Book' not found"
+        verify(exactly = 0) { bookRepositoryMock.reserveBook(any()) }
     }
 })

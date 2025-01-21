@@ -39,6 +39,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.postgresql:postgresql")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     testImplementation("io.cucumber:cucumber-java:7.14.0")
     testImplementation("io.cucumber:cucumber-spring:7.14.0")
@@ -115,14 +116,11 @@ pitest {
     threads.set(4)
     timestampedReports.set(false)
     verbose.set(true)
+    targetClasses.add("com.example.tp1.*")
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-tasks.build {
-    dependsOn("pitest")
 }
 
 tasks.test {
@@ -146,7 +144,16 @@ tasks.jacocoTestReport {
 
 jacoco {
     toolVersion = "0.8.12"
-    reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
+}
+
+tasks.register<JacocoReport>("jacocoFullReport") {
+    executionData(tasks.named("test").get(), tasks.named("testIntegration").get())
+    sourceSets(sourceSets["main"])
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
 
 tasks.register<Test>("integrationTest") {

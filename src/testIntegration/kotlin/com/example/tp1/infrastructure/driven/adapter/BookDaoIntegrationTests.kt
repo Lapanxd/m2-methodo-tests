@@ -2,6 +2,7 @@ import com.example.tp1.Tp1Application
 import com.example.tp1.domain.model.Book
 import com.example.tp1.infrastructure.driven.adapter.BookDao
 import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldContainExactly
@@ -55,6 +56,29 @@ class BookDaoIntegrationTests(
             val books = bookDao.findAll()
             books.shouldContainExactly(book1, book2)
         }
+
+        test("reserveBook should set is_reserved to true for the specified book") {
+            val book = Book(title = "1984", author = "George Orwell", isReserved = false)
+            bookDao.add(book)
+
+            shouldNotThrowAny {
+                bookDao.reserveBook(book)
+            }
+
+            val books = bookDao.findAll()
+            books.shouldContainExactly(
+                Book(title = "1984", author = "George Orwell", isReserved = true)
+            )
+        }
+
+        test("reserveBook should throw exception if the book is already reserved") {
+            val book = Book(title = "1984", author = "George Orwell", isReserved = true)
+            bookDao.add(book)
+
+            shouldThrow<IllegalArgumentException> {
+                bookDao.reserveBook(book)
+            }.message shouldBe "Book not found or already reserved"
+        }
     }
 
     companion object {
@@ -75,4 +99,6 @@ class BookDaoIntegrationTests(
             }
         }
     }
+
+
 }

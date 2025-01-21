@@ -13,4 +13,16 @@ class BookUseCase(private val bookRepository: BookPort) {
     fun listBooks(): List<Book> {
         return bookRepository.findAll().sortedBy { it.title }
     }
+
+    fun reserveBook(bookTitle: String) {
+        val book = bookRepository.findAll().firstOrNull { it.title == bookTitle }
+            ?: throw IllegalArgumentException("Book with title '$bookTitle' not found")
+
+        if (book.isReserved) {
+            throw IllegalStateException("Book with title '$bookTitle' is already reserved")
+        }
+
+        bookRepository.reserveBook(book)
+    }
+
 }
